@@ -28,7 +28,7 @@ public class Group9 extends AbstractNegotiationParty {
 	private AcceptStrat acceptStrat;
 	private BiddingStrat biddingStrat;
 	private HashMap<Object,BidHistory> previousBidsMap;
-	
+
 	/**
 	 * Each round this method gets called and ask you to accept or offer. The
 	 * first party in the first round is a bit different, it can only propose an
@@ -69,13 +69,13 @@ public class Group9 extends AbstractNegotiationParty {
 	public void receiveMessage(Object sender, Action action) {
 		if(action.getClass().isInstance(new Accept())){
 			acceptCount=acceptCount+1;
-			opponentModels.updateModel(sender, action, prevReceivedBid);
+			opponentModels.updateModel(sender, action, previousBidsMap);
 		}
 		else if(Action.getBidFromAction(action)!=null){
 			acceptCount=0;
-			opponentModels.updateModel(sender, action, prevReceivedBid);
 			prevReceivedBid=Action.getBidFromAction(action);
 			updateBidhistory(sender,prevReceivedBid);
+			opponentModels.updateModel(sender, action, previousBidsMap);
 		}
 		super.receiveMessage(sender, action);
 		// Here you hear other parties' messages
