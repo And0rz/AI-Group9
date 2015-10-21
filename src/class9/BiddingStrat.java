@@ -3,7 +3,6 @@ package class9;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,14 +80,14 @@ public class BiddingStrat {
 				gahboninhoSelfishReactionDet=true;
 				selfishnessAgainstHardhead=computeSelfishness(previousBids,gahboninoConcActualDeadline,timeLine.getCurrentTime());
 				hardHeadGahboninho=determineGahbinoStrategy(selfishnessAgainstConceding,selfishnessAgainstHardhead);
-				System.out.println("hardhead:"+hardHeadGahboninho);//TODO remove print
+				//System.out.println("hardhead:"+hardHeadGahboninho);//TODO remove print
 			}
 			if(hardHeadGahboninho){
 				return getBidFromTargetRange(new Range(hardheadMinimumUtility,1),opponentUtilities);//Get the bid rated best with utility above hardheadMinimumUtility
 			}
 			else{
 				double lowerbound=nonHardHeadStart-(nonHardHeadStart-nonHardHeadFinalGoal)*(Math.pow(t, (1/eps)));
-				System.out.println("lowerbound:"+lowerbound);
+				//System.out.println("lowerbound:"+lowerbound);//TODO remove print
 				return getBidFromTargetRange(new Range(lowerbound,Math.min(lowerbound+rangeSize, 1)),opponentUtilities);//Get the bid rated best with utility above hardheadMinimumUtility
 			}
 		}
@@ -104,13 +103,13 @@ public class BiddingStrat {
 		    double avUtil=entry.getValue().filterBetweenTime(startTime, endTime).getAverageUtility();
 		    double sampleVar=0;
 		    List<BidDetails> history = entry.getValue().filterBetweenTime(startTime, endTime).getHistory();
-		    System.out.println("Average:"+avUtil);
+		    //System.out.println("Average:"+avUtil);//TODO remove print
 		    for(BidDetails detail:history){
-		    	System.out.println("Sample:"+detail.getMyUndiscountedUtil());
+		    	//System.out.println("Sample:"+detail.getMyUndiscountedUtil());//TODO remove print
 		    	sampleVar=sampleVar+Math.pow((detail.getMyUndiscountedUtil()-avUtil), 2.0);
 		    }
 		    sampleVar=sampleVar/history.size();
-		    System.out.println("Variance:"+sampleVar);
+		    //System.out.println("Variance:"+sampleVar);//TODO remove print
 		    selfishMap.put(key, sampleVar);
 		}
 		return selfishMap;

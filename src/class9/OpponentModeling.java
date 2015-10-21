@@ -134,7 +134,8 @@ public class OpponentModeling {
 	
 	//creates standard UtilitySpace model given no current information
 	private void createNewModel(Object agent){
-		UtilitySpace newUtilitySpace = new UtilitySpace(currentDomain);
+		//UtilitySpace newUtilitySpace = new UtilitySpace(currentDomain);
+		UtilitySpace newUtilitySpace = new UtilitySpace(ourUtility);
 		//set all issue weights to be equal and evaluations 1)
 		amountOfIssues = newUtilitySpace.getDomain().getIssues().size();
 		double commonWeight = 1D / (double) amountOfIssues;
