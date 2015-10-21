@@ -45,7 +45,7 @@ public class Group9 extends AbstractNegotiationParty {
 		if (!validActions.contains(Accept.class)) {
 			return new Offer(ourBid);
 		} else {
-			if(acceptStrat.determineAcceptance(prevReceivedBid, ourBid, opponentModels.getOpponentUtilities(), this.getTimeLine())){
+			if(acceptStrat.determineAcceptance(prevReceivedBid, previousBidsMap, ourBid, opponentModels.getOpponentUtilities(), this.getTimeLine())){
 				return new Accept();
 			}else{
 				return new Offer(ourBid);
