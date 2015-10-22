@@ -23,6 +23,7 @@ import negotiator.Deadline;
  */
 public class Group9 extends AbstractNegotiationParty {
 	private Bid prevReceivedBid;
+	private Bid currentConsideredBid;
 	private int acceptCount;
 	private OpponentModeling opponentModels;
 	private AcceptStrat acceptStrat;
@@ -43,11 +44,13 @@ public class Group9 extends AbstractNegotiationParty {
 		Bid ourBid= biddingStrat.createBid(previousBidsMap, opponentModels.getOpponentUtilities(), this.getTimeLine());
 		
 		if (!validActions.contains(Accept.class)) {
+			currentConsideredBid = ourBid;
 			return new Offer(ourBid);
 		} else {
 			if(acceptStrat.determineAcceptance(prevReceivedBid, previousBidsMap, ourBid, opponentModels.getOpponentUtilities(), this.getTimeLine())){
 				return new Accept();
 			}else{
+				currentConsideredBid = ourBid;
 				return new Offer(ourBid);
 			}
 		}
@@ -69,6 +72,7 @@ public class Group9 extends AbstractNegotiationParty {
 	public void receiveMessage(Object sender, Action action) {
 		if(action.getClass().isInstance(new Accept())){
 			acceptCount=acceptCount+1;
+			updateBidhistory(sender,currentConsideredBid);
 			opponentModels.updateModel(sender, action, previousBidsMap);
 		}
 		else if(Action.getBidFromAction(action)!=null){
