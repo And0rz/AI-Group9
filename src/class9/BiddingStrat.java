@@ -59,10 +59,10 @@ public class BiddingStrat {
 		final double concessionGoal=0.9;
 		final double selfishnessDeadline=0.05;
 		final double hardheadMinimumUtility=0.9;
-		final double nonHardHeadFinalGoal=0.5;
+		final double nonHardHeadFinalGoal=0.6;
 		final double nonHardHeadStart=hardheadMinimumUtility;
 		final double eps=0.2;
-		final double rangeSize=0.2;
+		final double rangeSize=0.4;
 		double t=timeLine.getTime();
 		if(t<concessionDeadline){//Concession stage
 			return sortedSpace.getBidNearUtility(1-(1-concessionGoal)*(t/concessionDeadline)).getBid();//Concede linearly to concessionGoal to see how opponents react to conceders
@@ -80,7 +80,7 @@ public class BiddingStrat {
 				gahboninhoSelfishReactionDet=true;
 				selfishnessAgainstHardhead=computeSelfishness(previousBids,gahboninoConcActualDeadline,timeLine.getCurrentTime());
 				hardHeadGahboninho=determineGahbinoStrategy(selfishnessAgainstConceding,selfishnessAgainstHardhead);
-				//System.out.println("hardhead:"+hardHeadGahboninho);//TODO remove print
+				System.out.println("hardhead:"+hardHeadGahboninho);//TODO remove print
 			}
 			if(hardHeadGahboninho){
 				return getBidFromTargetRange(new Range(hardheadMinimumUtility,1),opponentUtilities);//Get the bid rated best with utility above hardheadMinimumUtility

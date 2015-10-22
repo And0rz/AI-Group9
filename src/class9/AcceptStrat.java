@@ -31,7 +31,7 @@ public class AcceptStrat {
 			boolean ACTime = acceptanceRatingTime(curTime,timeLine,theirBidUtil);
 			boolean ACConst = acceptanceRatingConst(theirBidUtil, bidHistory, curTime);
 			//If any strategy accepts we accept, the current parameters for the strategies mean we are basically running a next bid value strategy which also accepts anything at the very last second and accepts insanely good bids
-			return ((ACNext || ACTime) && ACConst);
+			return ((ACNext || ACTime) || ACConst);
 		}catch(Exception e){
 			return false;
 		}
@@ -47,7 +47,7 @@ public class AcceptStrat {
 			*/
 			final double margin = 1.15;
 			if (t <= 0.97) { //wait for better deal or accept if theirBidUtil is really high
-				double requiredUtil = 0.85;
+				double requiredUtil = 0.80;
 				return theirBidUtil >= requiredUtil;
 			}
 			else //when near the deadline, base acceptance on recent history of bids
@@ -102,7 +102,8 @@ public class AcceptStrat {
 		*/
 	
 		final double requiredTime=0.98;
-		return t>=requiredTime;
+		final double minUtil=0.3;
+		return (t>=requiredTime)&(theirBidUtil>minUtil);
 		
 	}
 	
