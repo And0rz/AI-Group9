@@ -12,6 +12,7 @@ import negotiator.utility.UtilitySpace;
 
 public class AcceptStrat {
 	private UtilitySpace ourUtility;
+	private double maxAvarageUtil = 0;
 	
 	public AcceptStrat(UtilitySpace ownUtility){
 		ourUtility=ownUtility;
@@ -44,34 +45,49 @@ public class AcceptStrat {
 			final double requiredUtil=0.85;//The constant value required
 			return theirBidUtil>requiredUtil;
 			*/
-			
-			if (t <= 0.5) { //wait for better deal or accept if theirBidUtil is really high
-				double requiredUtil = 0.90;
+			final double margin = 1.15;
+			if (t <= 0.97) { //wait for better deal or accept if theirBidUtil is really high
+				double requiredUtil = 0.85;
 				return theirBidUtil >= requiredUtil;
 			}
 			else //when near the deadline, base acceptance on recent history of bids
 			{
-				double r = 1-t; //time remaining in negotation
-				Iterator<BidHistory> historyIterator = previousBidsMap.values().iterator();
-				//double sumAvarageUtil = 0;
-				double maxUtil = 0;
-				while(historyIterator.hasNext()) { //retrieve max bid from every sender within remaining time window
-					BidHistory bidHistory = historyIterator.next();
-					//sumAvarageUtil += bidHistory.filterBetweenTime(t-r, t).getAverageUtility();
-					//sumAvarageUtil += bidHistory.filterBetweenTime(t-r, t).getBestBidDetails().getMyUndiscountedUtil();
-					//double util = bidHistory.filterBetweenTime(t-r, t).getBestBidDetails().getMyUndiscountedUtil();
-					List<BidDetails> utils = bidHistory.filterBetweenTime(t-r, t).getNBestBids(2);
-					Iterator<BidDetails> utilsIterator = utils.iterator();
-					while(utilsIterator.hasNext()) {
-						double util = utilsIterator.next().getMyUndiscountedUtil();
-						if (util > maxUtil) {
-							maxUtil = util;
+				if(maxAvarageUtil == 0) {
+					double r = 0.85; //time remaining in negotation
+					Iterator<BidHistory> historyIterator = previousBidsMap.values().iterator();
+					//double maxUtil = 0;
+					while(historyIterator.hasNext()) { //retrieve max bid from every sender within remaining time window
+						BidHistory bidHistory = historyIterator.next();
+						//sumAvarageUtil += bidHistory.filterBetweenTime(t-r, t).getAverageUtility();
+						//sumAvarageUtil += bidHistory.filterBetweenTime(t-r, t).getBestBidDetails().getMyUndiscountedUtil();
+						double avarageUtil = bidHistory.filterBetweenTime(r, t).getAverageUtility();
+						if (avarageUtil > maxAvarageUtil) {
+							maxAvarageUtil = avarageUtil;
 						}
+						//if (util > maxUtil) {
+						//	maxUtil = util;
+						//}
+						//List<BidDetails> utils = bidHistory.filterBetweenTime(t-r, t).getNBestBids(5);
+						/*
+						List<BidDetails> utils = bidHistory.getNBestBids(10);
+						Iterator<BidDetails> utilsIterator = utils.iterator();
+						while(utilsIterator.hasNext()) {
+							double util = utilsIterator.next().getMyUndiscountedUtil();
+							if (util > maxUtil) {
+								maxUtil = util;
+							}
+						} */
 					}
+					//avarageUtil /= previousBidsMap.size();
+					//System.out.println(avarageUtil + "* " + margin + "= " + avarageUtil*margin);
+					if(maxAvarageUtil*margin > 0.9) //upper bound on required utility
+						maxAvarageUtil = 0.9;
+					else
+						maxAvarageUtil *= margin; //multiply maximum avarage with an estimated margin
 				}
 				//true if theirBidUtil is larger than the avarage maxBid within remaining time window
 				//return theirBidUtil > (sumAvarageUtil / previousBidsMap.size());
-				return theirBidUtil > maxUtil;		
+				return theirBidUtil > maxAvarageUtil;		
 			}
 			
 		}
@@ -100,8 +116,8 @@ public class AcceptStrat {
 		return (allowedGap+(1+leniency+timeFactor*t*t*t)*(theirBidUtil/ourBidUtil))>1;
 		*/
 		
-		final double a = 1.02;
-		final double b = 0.04;
+		final double a = 1.00;
+		final double b = 0.00;
 		return (a*theirBidUtil+b) > ourBidUtil;		
 	}
 }
