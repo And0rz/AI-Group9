@@ -58,10 +58,10 @@ public class BiddingStrat {
 		final double concessionDeadline=0.05;
 		final double concessionGoal=0.9;
 		final double selfishnessDeadline=0.05;
-		final double hardheadMinimumUtility=0.9;
-		final double nonHardHeadFinalGoal=0.6;
-		final double nonHardHeadStart=hardheadMinimumUtility;
-		final double eps=0.2;
+		final double hardheadMinimumUtility=0.85;
+		final double nonHardHeadFinalGoal=0.65;
+		final double nonHardHeadStart=0.85;
+		final double eps=0.05;
 		final double rangeSize=0.4;
 		double t=timeLine.getTime();
 		if(t<concessionDeadline){//Concession stage
@@ -80,14 +80,12 @@ public class BiddingStrat {
 				gahboninhoSelfishReactionDet=true;
 				selfishnessAgainstHardhead=computeSelfishness(previousBids,gahboninoConcActualDeadline,timeLine.getCurrentTime());
 				hardHeadGahboninho=determineGahbinoStrategy(selfishnessAgainstConceding,selfishnessAgainstHardhead);
-				System.out.println("hardhead:"+hardHeadGahboninho);//TODO remove print
 			}
 			if(hardHeadGahboninho){
 				return getBidFromTargetRange(new Range(hardheadMinimumUtility,1),opponentUtilities);//Get the bid rated best with utility above hardheadMinimumUtility
 			}
 			else{
 				double lowerbound=nonHardHeadStart-(nonHardHeadStart-nonHardHeadFinalGoal)*(Math.pow(t, (1/eps)));
-				//System.out.println("lowerbound:"+lowerbound);//TODO remove print
 				return getBidFromTargetRange(new Range(lowerbound,Math.min(lowerbound+rangeSize, 1)),opponentUtilities);//Get the bid rated best with utility above hardheadMinimumUtility
 			}
 		}
@@ -103,32 +101,32 @@ public class BiddingStrat {
 		    double avUtil=entry.getValue().filterBetweenTime(startTime, endTime).getAverageUtility();
 		    double sampleVar=0;
 		    List<BidDetails> history = entry.getValue().filterBetweenTime(startTime, endTime).getHistory();
-		    //System.out.println("Average:"+avUtil);//TODO remove print
 		    for(BidDetails detail:history){
-		    	//System.out.println("Sample:"+detail.getMyUndiscountedUtil());//TODO remove print
 		    	sampleVar=sampleVar+Math.pow((detail.getMyUndiscountedUtil()-avUtil), 2.0);
 		    }
 		    sampleVar=sampleVar/history.size();
-		    //System.out.println("Variance:"+sampleVar);//TODO remove print
 		    selfishMap.put(key, sampleVar);
 		}
 		return selfishMap;
 	}
 	
+	
 	//Determine the optimal strategy against current estimated opponent strategies
 	private boolean determineGahbinoStrategy(HashMap<Object,Double> varianceVSConceding,HashMap<Object,Double> varianceVSHardhead){
 		final double hardheadLimit=0.001;//Variance below which opponent is considered hardhead
-		final double concederLimit=0.003;//Variance above which opponent is considered conceding
+		final double concederLimit=0.001;//Variance above which opponent is considered conceding
 		boolean competitiveFound=false;//Currently not used
 		for (Map.Entry<Object,Double> entry : varianceVSConceding.entrySet()) {
 			Object key=entry.getKey();
 			double varianceConceding=entry.getValue();
 			double varianceHardhead=varianceVSHardhead.get(key);
+			System.out.println("varConc:="+varianceConceding);
+			System.out.println("varHardhead:="+varianceConceding);
 			if(varianceHardhead>concederLimit){//The opponent concedes to hardliners
 				return true;//Abuse the conceder (or inverter) by hardlining
 			}
 			else if((varianceHardhead<hardheadLimit)&(varianceConceding<hardheadLimit)){
-				competitiveFound=true;//If any opponent is using a competitive strategy store this information to use slow conceder unless someone else is already conceding 
+				return false;//If any opponent is using a competitive strategy store this information to use slow conceder unless someone else is already conceding 
 			}
 			else if((varianceHardhead<hardheadLimit)&(varianceConceding>concederLimit)){
 				return false;//If any opponent is matching go for concession strategy to cooperate
@@ -137,6 +135,8 @@ public class BiddingStrat {
 		return false;//If all opponents are competitive go for slow concessions
 	}
 	
+	
+	//Find set of bids the opponents would most prefer out of the bids in our target utility range
 	private Bid getBidFromTargetRange(Range bidRange,HashMap<Object,UtilitySpace> opponentUtilities){
 		final int numberBidsConsider=3;
 		List<Entry<Bid,Double>> consideredBids=new ArrayList<Entry<Bid,Double>>();
@@ -172,4 +172,5 @@ public class BiddingStrat {
 			return sortedSpace.getMaxBidPossible().getBid();//Just in case something went wrong in making the bids
 		}
 	}
+	
 }
